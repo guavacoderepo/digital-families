@@ -9,7 +9,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="masthead">
-        <p className="masthead__name">Digital Families Programme</p>
+        <p className="masthead__name">Digital Families</p>
         <nav className="masthead__nav" aria-label="Sections">
           <button
             type="button"
