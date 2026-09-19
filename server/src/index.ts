@@ -36,6 +36,3 @@ app.listen(PORT, () => {
     `Advice: ${openAiConfigured ? "OpenAI" : "built-in (set OPENAI_API_KEY to use OpenAI)"}`,
   );
 });
-
-
-// remove to reload db
