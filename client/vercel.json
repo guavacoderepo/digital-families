@@ -1,0 +1,8 @@
+{
+    "rewrites": [
+        {
+            "source": "/api/:path*",
+            "destination": "https://digital-families.onrender.com/api/:path*"
+        }
+    ]
+}
