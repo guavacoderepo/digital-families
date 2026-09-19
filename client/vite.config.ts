@@ -8,7 +8,11 @@ export default defineConfig({
     proxy: {
       // Everything under /api goes to the Express server so the browser only
       // ever talks to one origin in development.
-      "/api": { target: "http://localhost:3001", changeOrigin: true },
+      // "/api": { target: "http://localhost:3001", changeOrigin: true },
+      "/api": {
+        target: "https://digital-families.onrender.com",
+        changeOrigin: true,
+      },
     },
   },
 });
