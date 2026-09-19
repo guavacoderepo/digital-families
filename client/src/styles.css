@@ -464,6 +464,29 @@ input {
   line-height: 1.5;
 }
 
+.result__comparison {
+  font-size: 21px;
+  color: var(--ink-2);
+  margin: 14px auto 0;
+  max-width: 44ch;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.advice__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* The saving is the reason to act, so it is set apart from the instruction
+   rather than buried at the end of the sentence. */
+.advice__saving {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
 .advice__number {
   flex: 0 0 auto;
   width: 40px;

@@ -15,6 +15,22 @@ import type { Band, Category, Question, Schema } from "./types.js";
  * results. They are all in this one file so that is a single-file edit.
  */
 
+/**
+ * The price and carbon assumptions behind the bill questions, in one place.
+ *
+ * Advice reuses these to turn a carbon saving back into pounds off the bill,
+ * so the figure a household is shown always matches the figure the same
+ * household was scored on. Update the prices here and both move together.
+ */
+export const TARIFF = {
+  electricityPencePerKwh: 28,
+  gasPencePerKwh: 7,
+  electricityKgPerKwh: 0.207,
+  gasKgPerKwh: 0.183,
+  /** kg CO2e for one mile in an average car. */
+  carKgPerMile: 0.275,
+} as const;
+
 export const categories: Category[] = [
   {
     id: "transport",
@@ -72,7 +88,7 @@ export const questions: Question[] = [
     unit: "miles",
     step: 10,
     max: 1000,
-    kgPerUnit: 0.275 * 52,
+    kgPerUnit: TARIFF.carKgPerMile * 52,
   },
   {
     id: "bus_train_week",
@@ -102,7 +118,8 @@ export const questions: Question[] = [
     step: 5,
     max: 800,
     // About 28p a unit, and about 0.207 kg for each unit, over twelve months.
-    kgPerUnit: (1 / 0.28) * 0.207 * 12,
+    kgPerUnit:
+      (100 / TARIFF.electricityPencePerKwh) * TARIFF.electricityKgPerKwh * 12,
   },
   {
     id: "gas_bill_month",
@@ -112,14 +129,14 @@ export const questions: Question[] = [
     step: 5,
     max: 800,
     // About 7p a unit, and about 0.183 kg for each unit, over twelve months.
-    kgPerUnit: (1 / 0.07) * 0.183 * 12,
+    kgPerUnit: (100 / TARIFF.gasPencePerKwh) * TARIFF.gasKgPerKwh * 12,
   },
   {
     id: "heating_oil_year",
     categoryId: "home",
     label: "How much heating oil do you buy in a year?",
     unit: "litres",
-    step: 50,
+    step: 100,
     max: 6000,
     kgPerUnit: 2.54,
   },
@@ -128,7 +145,8 @@ export const questions: Question[] = [
   {
     id: "red_meat_meals_week",
     categoryId: "food",
-    label: "How many meals with beef, lamb or pork does your home eat in a week?",
+    label:
+      "How many meals with beef, lamb or pork does your home eat in a week?",
     unit: "meals",
     step: 1,
     max: 60,
@@ -259,13 +277,55 @@ export const questions: Question[] = [
  * dashboard; the people answering the questions see the words and the grass.
  */
 export const bands: Band[] = [
-  { letter: "A", label: "Very small", minTonnes: 0, maxTonnes: 2, color: "#1B6B3A" },
-  { letter: "B", label: "Small", minTonnes: 2, maxTonnes: 3.5, color: "#3E9B4F" },
-  { letter: "C", label: "Below average", minTonnes: 3.5, maxTonnes: 5, color: "#8CBF3F" },
-  { letter: "D", label: "About average", minTonnes: 5, maxTonnes: 7, color: "#E8B62C" },
-  { letter: "E", label: "Above average", minTonnes: 7, maxTonnes: 9.5, color: "#E08A2B" },
-  { letter: "F", label: "Large", minTonnes: 9.5, maxTonnes: 13, color: "#D2622C" },
-  { letter: "G", label: "Very large", minTonnes: 13, maxTonnes: Infinity, color: "#B8352F" },
+  {
+    letter: "A",
+    label: "Very small",
+    minTonnes: 0,
+    maxTonnes: 2,
+    color: "#1B6B3A",
+  },
+  {
+    letter: "B",
+    label: "Small",
+    minTonnes: 2,
+    maxTonnes: 3.5,
+    color: "#3E9B4F",
+  },
+  {
+    letter: "C",
+    label: "Below average",
+    minTonnes: 3.5,
+    maxTonnes: 5,
+    color: "#8CBF3F",
+  },
+  {
+    letter: "D",
+    label: "About average",
+    minTonnes: 5,
+    maxTonnes: 7,
+    color: "#E8B62C",
+  },
+  {
+    letter: "E",
+    label: "Above average",
+    minTonnes: 7,
+    maxTonnes: 9.5,
+    color: "#E08A2B",
+  },
+  {
+    letter: "F",
+    label: "Large",
+    minTonnes: 9.5,
+    maxTonnes: 13,
+    color: "#D2622C",
+  },
+  {
+    letter: "G",
+    label: "Very large",
+    minTonnes: 13,
+    maxTonnes: Infinity,
+    color: "#B8352F",
+  },
 ];
 
 export const methodologyNote =
@@ -276,7 +336,10 @@ export const schema: Schema = {
   categories,
   questions,
   // Infinity is not valid JSON, so the top band is capped for the wire.
-  bands: bands.map((b) => ({ ...b, maxTonnes: Number.isFinite(b.maxTonnes) ? b.maxTonnes : 25 })),
+  bands: bands.map((b) => ({
+    ...b,
+    maxTonnes: Number.isFinite(b.maxTonnes) ? b.maxTonnes : 25,
+  })),
   methodologyNote,
 };
 

@@ -69,11 +69,29 @@ export interface CategoryResult {
   baselineKg: number;
 }
 
+export interface AdviceAction {
+  /** One short line, in everyday words. What to actually do. */
+  text: string;
+  /**
+   * What it saves in a year, rounded hard. Worked out from this household's
+   * own answers, never written by the model.
+   */
+  savingKg: number;
+  /**
+   * Pounds off the bill in a year, where it can be worked out honestly from a
+   * bill they gave us. Left out otherwise — a made-up saving is worse than no
+   * saving, because the first time one is wrong nobody believes the next.
+   */
+  savingPounds?: number;
+}
+
 export interface Advice {
-  /** One sentence saying where the footprint mostly comes from. */
+  /** One sentence saying where most of it comes from. */
   summary: string;
-  /** Three short lines. One idea each, no paragraphs. */
-  lines: string[];
+  /** The total turned into something a person can picture. */
+  comparison: string;
+  /** Three short actions. One idea each, no paragraphs. */
+  actions: AdviceAction[];
   source: "openai" | "built-in";
   model?: string;
 }

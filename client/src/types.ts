@@ -45,9 +45,16 @@ export interface CategoryResult {
   baselineKg: number;
 }
 
+export interface AdviceAction {
+  text: string;
+  savingKg: number;
+  savingPounds?: number;
+}
+
 export interface Advice {
   summary: string;
-  lines: string[];
+  comparison: string;
+  actions: AdviceAction[];
   source: "openai" | "built-in";
   model?: string;
 }
