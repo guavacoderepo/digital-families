@@ -97,9 +97,13 @@ export function ResultView({ assessment, methodologyNote, onRestart }: Props) {
 
       <section className="advice" aria-label="What would help most">
         <h3 className="section-title">What would help most</h3>
-        <ol className="advice__list">
+        {/* A <ul>, not an <ol>: the green circles already carry the number, and
+            an ordered list makes the browser add a second one when the page is
+            copied. The screen-reader text keeps the ordering spoken aloud. */}
+        <ul className="advice__list">
           {assessment.advice.actions.map((action, index) => (
             <li key={index} className="advice__item">
+              <span className="sr-only">Step {index + 1}. </span>
               <span className="advice__number" aria-hidden="true">
                 {index + 1}
               </span>
@@ -117,8 +121,7 @@ export function ResultView({ assessment, methodologyNote, onRestart }: Props) {
               </span>
             </li>
           ))}
-        </ol>
-        <p className="advice__summary">{assessment.advice.summary}</p>
+        </ul>
       </section>
 
       <details className="breakdown">

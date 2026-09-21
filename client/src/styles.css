@@ -756,3 +756,22 @@ input {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Read aloud, never drawn. Carries the ordering that the <ul> no longer
+   implies, so screen-reader users still hear "Step 1", "Step 2". */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.advice__engine {
+  font-size: 16px;
+  color: var(--ink-3, #7c8c87);
+  margin: 10px 0 0;
+}
