@@ -4,8 +4,8 @@ import type { Band, Category, Question, Schema } from "./types.js";
  * EMISSION FACTORS
  * ----------------
  * Indicative figures, chosen so a UK household can answer honestly from
- * memory. Several bundle a chain of assumptions into one number — any return
- * flight is treated as 400 kg regardless of where it went.
+ * memory. Several bundle a chain of assumptions into one number — a return
+ * flight is treated as one figure regardless of the airport, for example.
  *
  * Units are the ones people actually think in: miles, pounds on the bill,
  * meals, bags. Asking an 80-year-old for kilowatt hours gets you a guess or a
@@ -21,6 +21,12 @@ import type { Band, Category, Question, Schema } from "./types.js";
  * Advice reuses these to turn a carbon saving back into pounds off the bill,
  * so the figure a household is shown always matches the figure the same
  * household was scored on. Update the prices here and both move together.
+ *
+ * The pence figures are EFFECTIVE RATES — they average the standing charge
+ * across typical usage so a household can answer from a single line on the
+ * bill. They are not the headline unit rate. If you want to use the raw
+ * Ofgem price cap unit rate instead, drop to about 26p and 6.5p and adjust
+ * the two kgPerUnit calculations below to match.
  */
 export const TARIFF = {
   electricityPencePerKwh: 28,
@@ -29,6 +35,23 @@ export const TARIFF = {
   gasKgPerKwh: 0.183,
   /** kg CO2e for one mile in an average car. */
   carKgPerMile: 0.275,
+} as const;
+
+/**
+ * Flight factors. Two figures rather than one, because the gap between a
+ * domestic hop and a long-haul return is large enough to change a household's
+ * band. Both are per return journey, per person.
+ *
+ * Short-haul is a return within Europe, around 1,500 miles total, roughly
+ * 0.18 kg CO2e per passenger-km including the radiative forcing multiplier
+ * that aviation is usually quoted with.
+ *
+ * Long-haul is a return beyond Europe, around 7,000 miles total, same
+ * multiplier.
+ */
+export const FLIGHT_KG = {
+  shortHaulReturn: 500,
+  longHaulReturn: 2200,
 } as const;
 
 export const categories: Category[] = [
@@ -100,13 +123,23 @@ export const questions: Question[] = [
     kgPerUnit: 0.8 * 52,
   },
   {
-    id: "flights_year",
+    id: "flights_short_year",
     categoryId: "transport",
-    label: "How many return flights do you take in a year?",
+    label: "How many return flights within Europe do you take in a year?",
     unit: "flights",
     step: 1,
     max: 30,
-    kgPerUnit: 400,
+    kgPerUnit: FLIGHT_KG.shortHaulReturn,
+  },
+  {
+    id: "flights_long_year",
+    categoryId: "transport",
+    label:
+      "How many return flights further afield, such as to America or Asia, do you take in a year?",
+    unit: "flights",
+    step: 1,
+    max: 10,
+    kgPerUnit: FLIGHT_KG.longHaulReturn,
   },
 
   // Heating and power
@@ -117,7 +150,8 @@ export const questions: Question[] = [
     unit: "pounds",
     step: 5,
     max: 800,
-    // About 28p a unit, and about 0.207 kg for each unit, over twelve months.
+    // About 28p effective a unit, and about 0.207 kg for each unit, over
+    // twelve months.
     kgPerUnit:
       (100 / TARIFF.electricityPencePerKwh) * TARIFF.electricityKgPerKwh * 12,
   },
@@ -128,7 +162,8 @@ export const questions: Question[] = [
     unit: "pounds",
     step: 5,
     max: 800,
-    // About 7p a unit, and about 0.183 kg for each unit, over twelve months.
+    // About 7p effective a unit, and about 0.183 kg for each unit, over
+    // twelve months.
     kgPerUnit: (100 / TARIFF.gasPencePerKwh) * TARIFF.gasKgPerKwh * 12,
   },
   {
@@ -150,6 +185,10 @@ export const questions: Question[] = [
     unit: "meals",
     step: 1,
     max: 60,
+    // A meal's worth of red meat is roughly 4.5 kg CO2e. The range across
+    // portion sizes and cuts is wide, from about 2 kg for a small portion of
+    // pork to about 7.5 kg for a beef steak. 4.5 is the middle, chosen so a
+    // household eating red meat every day is not over-scored.
     kgPerUnit: 4.5 * 52,
   },
   {
@@ -268,6 +307,9 @@ export const questions: Question[] = [
     unit: "pets",
     step: 1,
     max: 15,
+    // Indicative, based on a medium dog's food footprint. The range across
+    // a small cat and a large dog is wide, from roughly 150 kg to 800 kg.
+    // 300 is the middle, chosen so a two-pet household is not over-scored.
     kgPerUnit: 300,
   },
 ];
@@ -330,7 +372,11 @@ export const bands: Band[] = [
 
 export const methodologyNote =
   "These figures are a good guide, not an exact measurement. They cover the " +
-  "things a household can change, and include an allowance for everyday food.";
+  "things a household can change, and include an allowance for everyday food. " +
+  "Flights are the biggest single uncertainty: a return within Europe and a " +
+  "return to America are counted separately, but the distance to each " +
+  "destination varies and two people on the same route may see different " +
+  "figures from their airline.";
 
 export const schema: Schema = {
   categories,
